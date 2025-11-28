@@ -74,7 +74,7 @@ CREATE TABLE `asignaciones` (
   CONSTRAINT `asignaciones_ibfk_2` FOREIGN KEY (`idMateria`) REFERENCES `materias` (`idMateria`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `asignaciones_ibfk_3` FOREIGN KEY (`idGrupo`) REFERENCES `grupos` (`idGrupo`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `asignaciones_ibfk_4` FOREIGN KEY (`idPeriodo`) REFERENCES `periodosescolares` (`idPeriodo`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO asignaciones VALUES("1","1","1","1","1");
 INSERT INTO asignaciones VALUES("2","2","2","1","1");
@@ -109,6 +109,7 @@ INSERT INTO asignaciones VALUES("30","8","7","7","1");
 INSERT INTO asignaciones VALUES("31","9","8","7","1");
 INSERT INTO asignaciones VALUES("32","10","9","7","1");
 INSERT INTO asignaciones VALUES("33","8","2","1","1");
+INSERT INTO asignaciones VALUES("34","14","7","6","2");
 
 
 DROP TABLE IF EXISTS `calificaciones`;
@@ -154,7 +155,7 @@ CREATE TABLE `carreras` (
 INSERT INTO carreras VALUES("1","Ingeniería en Software","ISW","Carrera enfocada en desarrollo de software.");
 INSERT INTO carreras VALUES("2","Ingeniería Industrial","IIN","Carrera enfocada en procesos industriales.");
 INSERT INTO carreras VALUES("3","Ingeniería en Mecatrónica","IMT","Carrera enfocada en automatización y robótica.");
-INSERT INTO carreras VALUES("4","ITI","","Informatica");
+INSERT INTO carreras VALUES("4","ITI","ITI2025","Informatica");
 
 
 DROP TABLE IF EXISTS `docentes`;
@@ -164,7 +165,7 @@ CREATE TABLE `docentes` (
   PRIMARY KEY (`idDocente`),
   KEY `idUsuario` (`idUsuario`),
   CONSTRAINT `docentes_ibfk_1` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`idUsuario`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO docentes VALUES("1","3");
 INSERT INTO docentes VALUES("2","4");
@@ -177,6 +178,10 @@ INSERT INTO docentes VALUES("8","10");
 INSERT INTO docentes VALUES("9","11");
 INSERT INTO docentes VALUES("10","12");
 INSERT INTO docentes VALUES("11","13");
+INSERT INTO docentes VALUES("12","14");
+INSERT INTO docentes VALUES("13","15");
+INSERT INTO docentes VALUES("14","16");
+INSERT INTO docentes VALUES("15","17");
 
 
 DROP TABLE IF EXISTS `grupos`;
@@ -293,7 +298,7 @@ CREATE TABLE `periodosescolares` (
   `fechaInicio` date NOT NULL,
   `fechaFin` date NOT NULL,
   PRIMARY KEY (`idPeriodo`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO periodosescolares VALUES("1","Septiembre–Diciembre 2025","2025-09-04","2025-12-14");
 INSERT INTO periodosescolares VALUES("2","Enero–Abril 2026","2026-01-10","2026-04-18");

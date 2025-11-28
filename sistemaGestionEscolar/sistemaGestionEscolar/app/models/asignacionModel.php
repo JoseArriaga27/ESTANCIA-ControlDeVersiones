@@ -6,13 +6,16 @@ class AsignacionModel {
     }
 
     public function syncDocentes() {
-        $sql = "INSERT INTO docentes (idUsuario, departamento, telefono)
-                SELECT u.idUsuario, NULL, NULL
+        // Insertar SOLO idUsuario porque la tabla docentes solo tiene 2 columnas
+        $sql = "INSERT INTO docentes (idUsuario)
+                SELECT u.idUsuario
                 FROM usuarios u
                 LEFT JOIN docentes d ON d.idUsuario = u.idUsuario
                 WHERE u.rol = 'Docente' AND d.idDocente IS NULL";
-        $this->connection->query($sql);
+        
+        return $this->connection->query($sql);
     }
+
 
     public function obtenerDocentes() {
         $sql = "SELECT d.idDocente, CONCAT(u.nombres,' ',u.apePaterno) AS nombre
