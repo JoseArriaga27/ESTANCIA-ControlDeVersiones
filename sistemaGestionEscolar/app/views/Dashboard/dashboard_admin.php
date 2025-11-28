@@ -1,12 +1,13 @@
 <?php
-session_start();
 if (!isset($_SESSION['usuario'])) { 
   header("Location: ../../../index.php?action=login"); 
   exit; 
 }
 $usuario = $_SESSION['usuario'];
-require_once __DIR__ . '/../../../config/config.php'; // para usar BASE_URL
+require_once __DIR__ . '/../../../config/config.php'; 
+
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,84 +18,256 @@ require_once __DIR__ . '/../../../config/config.php'; // para usar BASE_URL
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <style>
-    :root { --primary: #0d6efd; --sidebar-width: 260px; }
-    body { background: #f5f7fb; }
-    .navbar { background-color: var(--primary) !important; }
-    .sidebar {
-      position: fixed; top: 0; bottom: 0; left: 0; width: var(--sidebar-width);
-      background: #fff; border-right: 1px solid #e5e7eb; padding-top: 64px;
+
+    :root {
+      --primary: #0A2A43;
+      --sidebar-width: 260px;
+      --navbar-height: 48px; 
     }
-    .brand { position: fixed; top: 0; left: 0; height: 64px; width: var(--sidebar-width);
-      display:flex; align-items:center; justify-content:center; gap:.5rem;
-      background: #fff; border-right: 1px solid #e5e7eb; }
-    .brand .dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; display:inline-block; }
-    .main { margin-left: var(--sidebar-width); padding: 1.25rem; }
-    .nav-link { color: #374151; border-radius: .5rem; }
-    .nav-link:hover, .nav-link.active { background: rgba(13,110,253,.08); color: var(--primary); }
-    footer.sidebar-footer { position:absolute; bottom: 0; left: 0; right: 0; padding: .75rem; font-size:.85rem; color:#6b7280; text-align:center; border-top:1px solid #e5e7eb; background:#fff; }
-    .collapink { padding-left: 2rem; }
+
+    /* =============================
+      GENERAL
+    ============================= */
+    body {
+      background: #f5f7fb;
+      margin: 0;
+      padding-top: var(--navbar-height);
+    }
+
+    .navbar {
+      background: var(--primary) !important;
+      height: var(--navbar-height);
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    /* =============================
+      SIDEBAR
+    ============================= */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      position: fixed;
+      top: var(--navbar-height);
+      left: 0;
+      height: calc(100vh - var(--navbar-height));
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding-top: 12px;
+    }
+
+    /* =============================
+      TITULOS
+    ============================= */
+    .menu-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #6b7280;
+      padding: 12px 18px 4px;
+      cursor: default;
+    }
+
+    /* =============================
+      LINKS (SIEMPRE VISIBLES)
+    ============================= */
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      color: #374151;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    .nav-link:hover {
+      background: rgba(13,110,253,.12);
+      color: var(--primary);
+    }
+
+    .nav-link i {
+      font-size: 1.1rem;
+    }
+    /* =============================
+      LOGOUT SIEMPRE ABAJO
+    ============================= */
+    .logout-item {
+      margin-top: auto;
+      margin-bottom: 10px;
+    }
+
+    .logout-item .nav-link {
+      color: #dc3545;
+    }
+
+    .logout-item .nav-link:hover {
+      background: rgba(220,53,69,.12);
+    }
+
+    /* =============================
+      FOOTER sidebar
+    ============================= */
+    .sidebar-footer {
+      padding: 12px;
+      font-size: 0.85rem;
+      text-align: center;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .main {
+      margin-left: var(--sidebar-width);
+      padding: 1.2rem;
+    }
+
+    .sidebar ul {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tamaños de gráficas */
+    .chart-box {
+      height: 260px;
+      position: relative;
+    }
+
+    .chart-box-sm {
+      height: 200px;
+      position: relative;
+    }
+
+    .chart-box-lg {
+      height: 320px;
+      position: relative;
+    }
+    .titulo-estadisticas {
+      color: #0A2A43 !important;
+    }
+
+
   </style>
 </head>
 <body>
 
-<!-- ===================================== -->
-<!-- Barra superior -->
-<!-- ===================================== -->
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container-fluid">
+    <span class="navbar-brand h5 mb-0 text-white">Sistema de Gestión Escolar</span>
     <div class="ms-auto">
       <span class="text-white me-3">
         <i class="bi bi-person-circle me-1"></i>
         <?= htmlspecialchars($usuario['nombre']) ?> (<?= htmlspecialchars($usuario['rol']) ?>)
       </span>
-      <a href="../../../index.php?action=logout" class="btn btn-outline-light btn-sm">
+      <a href="<?= BASE_URL ?>index.php?action=logout" class="btn btn-outline-light btn-sm">
         <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
       </a>
     </div>
   </div>
 </nav>
 
-<!-- ===================================== -->
-<!-- Sidebar -->
-<!-- ===================================== -->
-<div class="brand"><span class="dot"></span><strong>Administrador</strong></div>
-<aside class="sidebar p-3">
-  <ul class="nav flex-column gap-1">
-    <li class="nav-item">
-      <a class="nav-link active d-flex align-items-center gap-2" href="#" data-target="usuarios">
-        <i class="bi bi-people"></i><span>Gestiones Generales</span>
-      </a>
-    </li>
+<aside class="sidebar">
+  <ul class="nav flex-column">
 
-    <!-- Menú desplegable de Materias -->
-    <li class="nav-item">
-      <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="collapse" href="#materiasMenu" role="button" aria-expanded="false" aria-controls="materiasMenu">
-        <i class="bi bi-journal-bookmark"></i><span>Materias</span>
-      </a>
-      <div class="collapse ps-2" id="materiasMenu">
-        <ul class="list-unstyled">
-          <li>
-            <a href="<?= BASE_URL ?>app/views/materiasView.php" class="nav-link d-flex align-items-center gap-2">
-              <i class="bi bi-journal-text"></i> Gestión de Materias
-            </a>
-          </li>
-          <li>
-            <a href="<?= BASE_URL ?>app/views/periodosView.php" class="nav-link d-flex align-items-center gap-2">
-              <i class="bi bi-calendar3"></i> Gestión de Periodos Escolares
-            </a>
-          </li>
-        </ul>
+    <!-- INICIO -->
+    <div class="menu-group">
+      <li class="menu-title">Inicio</li>
+      <div class="submenu">
+        <a class="nav-link" href="<?= BASE_URL ?>index.php?action=dashboard">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
       </div>
-    </li>
+    </div>
 
-    <li class="nav-item">
-      <a class="nav-link d-flex align-items-center gap-2" href="#" data-target="reportes">
-        <i class="bi bi-graph-up"></i><span>Reportes</span>
+    <!-- ADMINISTRACIÓN -->
+    <div class="menu-group">
+      <li class="menu-title">Administración Académica</li>
+      <div class="submenu">
+        <a class="nav-link" href="<?= BASE_URL ?>index.php?action=usuarios"><i class="bi bi-people-fill"></i> Usuarios</a>
+        <a class="nav-link" href="<?= BASE_URL ?>app/views/carrerasView.php"><i class="bi bi-mortarboard"></i> Carreras</a>
+        <a class="nav-link" href="<?= BASE_URL ?>app/views/periodosView.php"><i class="bi bi-calendar3"></i> Periodos</a>
+        <a class="nav-link" href="<?= BASE_URL ?>app/views/gruposView.php"><i class="bi bi-collection"></i> Grupos</a>
+        <a class="nav-link" href="<?= BASE_URL ?>app/views/materiasView.php"><i class="bi bi-journal-text"></i> Materias</a>
+      </div>
+    </div>
+
+    <!-- PROCESOS -->
+    <div class="menu-group">
+      <li class="menu-title">Procesos Académicos</li>
+      <div class="submenu">
+        <a class="nav-link" href="<?= BASE_URL ?>app/views/asignacionesView.php"><i class="bi bi-diagram-3"></i> Asignaciones</a>
+        <a class="nav-link" href="<?= BASE_URL ?>app/views/alumnosView.php"><i class="bi bi-person-lines-fill"></i> Asignar alumnos</a>
+        <a class="nav-link" href="<?= BASE_URL ?>index.php?action=capturaCalificaciones"><i class="bi bi-pencil-square"></i> Captura</a>
+        <a class="nav-link" href="<?= BASE_URL ?>index.php?action=consultaCalificaciones"><i class="bi bi-clipboard-data"></i> Consulta</a>
+      </div>
+    </div>
+
+  <!-- REPORTES -->
+  <div class="menu-group">
+    <li class="menu-title">Reportes</li>
+
+    <div class="submenu">
+
+      <!-- Reporte: Kardex / Boleta por Alumno -->
+      <a class="nav-link" href="<?= BASE_URL ?>app/views/reportes/kardexAlumnoView.php">
+        <i class="bi bi-file-earmark-person"></i> Boleta / Kardex Alumno
+      </a>
+
+      <!-- Reporte: Listado general de alumnos -->
+      <a class="nav-link" href="<?= BASE_URL ?>app/views/reportes/alumnosGeneralView.php">
+        <i class="bi bi-people"></i> Alumnos (General)
+      </a>
+
+      <!-- Reporte: Calificaciones por grupo -->
+      <a class="nav-link" href="<?= BASE_URL ?>index.php?action=calificacionesGrupo">
+          <i class="bi bi-clipboard-data"></i> Calificaciones por Grupo
+      </a>
+
+
+      <!-- Reporte: Estadísticas del sistema -->
+      <a class="nav-link" href="<?= BASE_URL ?>index.php?action=estadisticasPDF">
+        <i class="bi bi-graph-up"></i> Estadísticas
+      </a>
+
+      <li>
+    <a class="nav-link" href="<?= BASE_URL ?>index.php?action=reporteAlumnosCarrera">
+        <i class="bi bi-people-fill"></i> Alumnos por Carrera
+    </a>
+</li>
+    </div>
+  </div>
+
+
+    <!-- SISTEMA -->
+    <div class="menu-group">
+      <li class="menu-title">Sistema</li>
+      <div class="submenu">
+        <a class="nav-link" href="<?= BASE_URL ?>index.php?action=backup"><i class="bi bi-cloud-arrow-down"></i> Respaldar BD</a>
+        <a class="nav-link" href="<?= BASE_URL ?>index.php?action=restore"><i class="bi bi-arrow-counterclockwise"></i> Restaurar BD</a>
+      </div>
+    </div>
+
+    <!-- CERRAR SESIÓN -->
+    <li class="logout-item">
+      <a class="nav-link text-danger" href="<?= BASE_URL ?>index.php?action=logout">
+        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
       </a>
     </li>
+
   </ul>
+
   <footer class="sidebar-footer">© 2025 Sistema de Gestión Escolar</footer>
 </aside>
+
+
 
 <!-- ===================================== -->
 <!-- Contenido principal -->
@@ -109,7 +282,7 @@ require_once __DIR__ . '/../../../config/config.php'; // para usar BASE_URL
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="text-muted small">Usuarios</div>
-              <div class="fs-4">128</div>
+              <div class="fs-4"><?= $usuarios ?></div>
             </div>
             <div class="icon-wrap"><i class="bi bi-people-fill"></i></div>
           </div>
@@ -120,7 +293,7 @@ require_once __DIR__ . '/../../../config/config.php'; // para usar BASE_URL
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="text-muted small">Materias</div>
-              <div class="fs-4">32</div>
+              <div class="fs-4"><?= $materias ?></div>
             </div>
             <div class="icon-wrap"><i class="bi bi-journal"></i></div>
           </div>
@@ -131,7 +304,7 @@ require_once __DIR__ . '/../../../config/config.php'; // para usar BASE_URL
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div class="text-muted small">Grupos</div>
-              <div class="fs-4">18</div>
+              <div class="fs-4"><?= $grupos ?></div>
             </div>
             <div class="icon-wrap"><i class="bi bi-collection-fill"></i></div>
           </div>
@@ -149,134 +322,255 @@ require_once __DIR__ . '/../../../config/config.php'; // para usar BASE_URL
         </div>
       </div>
     </div>
+    <!-- =============================== -->
+<!-- SECCIÓN DE GRÁFICAS -->
+<!-- =============================== -->
 
-    <!-- Bloque: Gestión de Usuarios -->
-    <section id="usuarios" class="mt-3">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-          <span>Gestión de Usuarios</span>
-          <a href="../../../index.php?action=usuarios" class="btn btn-primary btn-sm">
-            <i class="bi bi-people-fill me-1"></i> Ir al módulo
-          </a>
-        </div>
-        <div class="card-body">
-          <p class="text-muted mb-0">
-            Desde aquí puedes acceder al módulo completo de administración de usuarios del sistema.
-          </p>
-        </div>
-      </div>
-    </section>
+<h4 class="mt-4 mb-3 fw-bold titulo-estadisticas">Estadísticas del Sistema</h4>
 
-    <!-- Bloque: Gestión de Materias -->
-    <section id="materias" class="mt-3">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-          <span>Gestión de Materias</span>
-          <a href="<?= BASE_URL ?>app/views/materiasView.php" class="btn btn-primary btn-sm">
-            <i class="bi bi-journal-text me-1"></i> Ir al módulo
-          </a>
-        </div>
-        <div class="card-body">
-          <p class="text-muted mb-0">
-            Desde aquí puedes acceder al módulo completo de administración de materias del sistema.
-          </p>
-        </div>
-      </div>
-    </section>
+<div class="row g-4">
 
-    <!-- Bloque: Gestión de Periodos Escolares -->
-    <section id="periodos" class="mt-3">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-          <span>Gestión de Periodos Escolares</span>
-          <a href="<?= BASE_URL ?>app/views/periodosView.php" class="btn btn-primary btn-sm">
-            <i class="bi bi-calendar3 me-1"></i> Ir al módulo
-          </a>
-        </div>
-        <div class="card-body">
-          <p class="text-muted mb-0">
-            Desde aquí puedes acceder al módulo completo de administración de periodos escolares del sistema, 
-            donde podrás registrar, actualizar o eliminar periodos académicos.
-          </p>
-        </div>
+  <!-- 1. Alumnos por Carrera -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h6 class="fw-semibold text-secondary">Alumnos por Carrera</h6>
+      <div class="chart-box">
+        <canvas id="chartCarreras"></canvas>
       </div>
-    </section>
-    <!-- ===================================== -->
-<!-- Bloque: Gestión de Grupos -->
-<!-- ===================================== -->
-<section id="grupos" class="mt-3">
-  <div class="card shadow-sm">
-    <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-      <span>Gestión de Grupos</span>
-      <a href="<?= BASE_URL ?>app/views/gruposView.php" class="btn btn-primary btn-sm">
-        <i class="bi bi-collection me-1"></i> Ir al módulo
-      </a>
-    </div>
-    <div class="card-body">
-      <p class="text-muted mb-0">
-        Desde aquí puedes acceder al módulo completo de administración de grupos del sistema,
-        donde podrás registrar, actualizar o eliminar grupos académicos.
-      </p>
     </div>
   </div>
-</section>
 
-<!-- ===================================== -->
-<!-- Bloque: Gestión de Asignaciones -->
-<!-- ===================================== -->
-<section id="asignaciones" class="mt-3">
-  <div class="card shadow-sm">
-    <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-      <span>Asignación de Materias a Docentes</span>
-      <a href="<?= BASE_URL ?>app/views/asignacionesView.php" class="btn btn-primary btn-sm">
-        <i class="bi bi-diagram-3 me-1"></i> Ir al módulo
-      </a>
-    </div>
-    <div class="card-body">
-      <p class="text-muted mb-0">
-        Desde aquí puedes acceder al módulo completo de administración de asignaciones del sistema,
-        donde podrás vincular docentes con materias y grupos según el periodo correspondiente.
-      </p>
-    </div>
-  </div>
-</section>
- <!-- Bloque: Gestión de Carreras -->
-    <!-- ===================================== -->
-    <section id="carreras" class="mt-3">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-          <span>Gestión de Carreras</span>
-          <a href="<?= BASE_URL ?>app/views/carrerasView.php" class="btn btn-primary btn-sm">
-            <i class="bi bi-mortarboard-fill me-1"></i> Ir al módulo
-          </a>
-        </div>
-        <div class="card-body">
-          <p class="text-muted mb-0">
-            Desde aquí puedes acceder al módulo completo de administración de carreras, donde podrás registrar,
-            editar o eliminar carreras universitarias disponibles en el sistema.
-          </p>
-        </div>
+
+  <!-- 2. Alumnos por Grupo -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h6 class="fw-semibold text-secondary">Alumnos por Grupo</h6>
+      <div class="chart-box">
+        <canvas id="chartGrupos"></canvas>
       </div>
-    </section>
-
-    <!-- ===================================== -->
-<!-- Bloque: Gestión de Alumnos e Inscripciones -->
-<!-- ===================================== -->
-<section id="alumnos" class="mt-3">
-  <div class="card shadow-sm">
-    <div class="card-header bg-light fw-semibold d-flex justify-content-between align-items-center">
-      <span>Asignación de alumnos a un grupo</span>
-      <a href="<?= BASE_URL ?>app/views/alumnosView.php" class="btn btn-primary btn-sm">
-        <i class="bi bi-person-lines-fill me-1"></i> Ir al módulo
-      </a>
-    </div>
-    <div class="card-body">
-      <p class="text-muted mb-0">
-        Desde aquí puedes registrar nuevos alumnos, vincularlos a carreras e inscribirlos a grupos del sistema académico.
-      </p>
     </div>
   </div>
-</section>
+
+
+  <!-- 3. Materias más asignadas -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h6 class="fw-semibold text-secondary">Materias más asignadas a grupos</h6>
+      <div class="chart-box">
+        <canvas id="chartMaterias"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 4. Docentes con más materias -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h6 class="fw-semibold text-secondary">Docentes con más asignaciones de materias</h6>
+      <div class="chart-box">
+        <canvas id="chartDocentes"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 5. % Inscritos vs Totales -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h6 class="fw-semibold text-secondary">% Alumnos inscritos</h6>
+      <div class="chart-box-sm">
+        <canvas id="chartInscritos"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 6. Género del alumnado -->
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3">
+      <h6 class="fw-semibold text-secondary">Distribución de Género</h6>
+      <div class="chart-box-sm">
+        <canvas id="chartGenero"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- =============================== -->
+<!-- COLORES Y SCRIPTS DE CHARTJS -->
+<!-- =============================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ===============================
+    PALETA EXACTA DEL DASHBOARD
+=============================== */
+const colors = {
+  navy: "#0A2A43",
+  orange: "#FFA726",
+  yellow: "#FFCC80",
+  gray: "#9E9E9E",
+  white: "#FFFFFF"
+};
+
+/* =========================================
+   1. Alumnos por Carrera (Bar Chart)
+========================================= */
+new Chart(document.getElementById('chartCarreras'), {
+  type: 'bar',
+  data: {
+    labels: [
+      <?php while($row = $alumnosCarrera->fetch_assoc()) { echo "'" . $row['nombreCarrera'] . "',"; } ?>
+    ],
+    datasets: [{
+      label: 'Alumnos',
+      data: [
+        <?php 
+          $alumnosCarrera->data_seek(0);
+          while($row = $alumnosCarrera->fetch_assoc()) { echo $row['total'] . ","; }
+        ?>
+      ],
+      backgroundColor: colors.navy
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+
+});
+
+/* =========================================
+   2. Alumnos por Grupo (Bar Horizontal)
+========================================= */
+new Chart(document.getElementById('chartGrupos'), {
+  type: 'bar',
+  data: {
+    labels: [
+      <?php while($row = $alumnosGrupo->fetch_assoc()) { echo "'" . $row['nombreGrupo'] . "',"; } ?>
+    ],
+    datasets: [{
+      label: 'Alumnos',
+      data: [
+        <?php 
+          $alumnosGrupo->data_seek(0);
+          while($row = $alumnosGrupo->fetch_assoc()) { echo $row['total'] . ","; }
+        ?>
+      ],
+      backgroundColor: colors.orange
+    }]
+  },
+  options: { 
+    indexAxis: 'y', 
+    responsive: true, 
+    maintainAspectRatio: false
+
+   }
+});
+
+/* =========================================
+   3. Materias más asignadas
+========================================= */
+new Chart(document.getElementById('chartMaterias'), {
+  type: 'bar',
+  data: {
+    labels: [
+      <?php while($row = $materiasRanking->fetch_assoc()) { echo "'" . $row['nombreMateria'] . "',"; } ?>
+    ],
+    datasets: [{
+      label: 'Asignaciones',
+      data: [
+        <?php 
+          $materiasRanking->data_seek(0);
+          while($row = $materiasRanking->fetch_assoc()) { echo $row['total'] . ","; }
+        ?>
+      ],
+      backgroundColor: colors.navy
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+/* =========================================
+   4. Docentes con más asignaciones
+========================================= */
+new Chart(document.getElementById('chartDocentes'), {
+  type: 'bar',
+  data: {
+    labels: [
+      <?php while($row = $docentesRanking->fetch_assoc()) { echo "'" . $row['docente'] . "',"; } ?>
+    ],
+    datasets: [{
+      label: 'Asignaciones',
+      data: [
+        <?php 
+          $docentesRanking->data_seek(0);
+          while($row = $docentesRanking->fetch_assoc()) { echo $row['total'] . ","; }
+        ?>
+      ],
+      backgroundColor: colors.yellow
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+/* =========================================
+   5. % Inscritos vs Totales
+========================================= */
+new Chart(document.getElementById('chartInscritos'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Inscritos', 'No inscritos'],
+    datasets: [{
+      data: [
+        <?= $inscritosVsTotales['inscritos'] ?>,
+        <?= $inscritosVsTotales['totalAlumnos'] - $inscritosVsTotales['inscritos'] ?>
+      ],
+      backgroundColor: [colors.orange, colors.gray]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+/* =========================================
+   6. Género del alumnado
+========================================= */
+new Chart(document.getElementById('chartGenero'), {
+  type: 'pie',
+  data: {
+    labels: [
+      <?php while($row = $generoAlumnos->fetch_assoc()) { echo "'" . $row['sexo'] . "',"; } ?>
+    ],
+    datasets: [{
+      data: [
+        <?php 
+          $generoAlumnos->data_seek(0);
+          while($row = $generoAlumnos->fetch_assoc()) { echo $row['total'] . ","; }
+        ?>
+      ],
+      backgroundColor: [colors.navy, colors.yellow]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+</script>
+
 
 
   </div> <!-- Cierra container-fluid -->

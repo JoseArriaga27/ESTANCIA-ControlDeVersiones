@@ -1,6 +1,7 @@
 <?php
 class GrupoModel {
     private $connection;
+    
     public function __construct($connection) {
         $this->connection = $connection;
     }
@@ -41,5 +42,14 @@ class GrupoModel {
         $stmt = $this->connection->prepare("DELETE FROM grupos WHERE idGrupo=?");
         $stmt->bind_param("i", $id);
         return $stmt->execute();
+    }
+
+    // ====================================================
+    // MÉTODO NECESARIO PARA EL DASHBOARD ADMIN
+    // ====================================================
+    public function contarGrupos() {
+        $sql = "SELECT COUNT(*) AS total FROM grupos";
+        $result = $this->connection->query($sql);
+        return $result->fetch_assoc()['total'];
     }
 }

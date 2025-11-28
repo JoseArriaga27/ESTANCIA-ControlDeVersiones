@@ -24,6 +24,14 @@ $asigEditar = null;
 if ($modo === 'editar') {
   $asigEditar = $model->obtenerAsignacionPorId(intval($_GET['edit']));
 }
+$colorPrimario = "#0A2A43"; // Azul admin por defecto
+$colorHover    = "#093455";
+
+if ($rolUsuario === "Administrativo") {
+    $colorPrimario = "#320B86"; // Morado
+    $colorHover    = "#320B86"; // Morado oscuro
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -33,11 +41,57 @@ if ($modo === 'editar') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
-    body{background:#f8f9fa}
-    .navbar{background:#007bff}
-    .card-header{background:#5a5a5a;color:#fff}
-    footer{background:#007bff;color:#fff;text-align:center;padding:10px 0;margin-top:40px}
-  </style>
+    body{
+      background:#f8f9fa;
+    }
+
+    .navbar{
+      background: <?= $colorPrimario ?> !important;
+    }
+
+    .card-header{
+      background:#5a5a5a;
+      color:#fff;
+    }
+
+    footer{
+      background: <?= $colorPrimario ?>;
+      color:#fff;
+      text-align:center;
+      padding:10px 0;
+      margin-top:40px;
+    }
+
+    .btn-institucional {
+      background-color: <?= $colorPrimario ?> !important;
+      color: white !important;
+      border: 1px solid <?= $colorPrimario ?> !important;
+      border-radius: 8px;
+    }
+
+    .btn-institucional:hover {
+      background-color: <?= $colorHover ?> !important;
+      color: #fff !important;
+    }
+
+    .titulo-pagina {
+        color: <?= $colorPrimario ?>;
+        font-weight: 700;
+    }
+
+    .btn-regresar {
+        background: <?= $colorPrimario ?>;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 6px;
+    }
+
+    .btn-regresar:hover {
+        background: <?= $colorHover ?>;
+        color: #fff;
+    }
+</style>
+
 </head>
 <body>
 
@@ -58,7 +112,18 @@ if ($modo === 'editar') {
 </nav>
 
 <div class="container mt-4 mb-5">
-  <h3 class="text-center mb-4 fw-semibold">Asignación de Materias a Docentes</h3>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="titulo-pagina m-0">
+        <i class="bi bi-person-video3 me-2"></i> Asignación de Materias a Docentes
+    </h3>
+
+    <a href="<?= BASE_URL ?>index.php?action=<?= $rolUsuario === 'Administrativo' ? 'dashboard_administrativo' : 'dashboard' ?>" 
+      class="btn btn-regresar px-4">
+
+        <i class="bi bi-arrow-left"></i> Regresar
+    </a>
+</div>
+
 
   <div class="card mb-4 shadow-sm">
     <div class="card-header fw-semibold">Nueva Asignación</div>
@@ -186,12 +251,6 @@ if ($modo === 'editar') {
     </div>
   </div>
   <?php endif; ?>
-
-  <div class="text-center my-4">
-    <a href="../views/Dashboard/dashboard_admin.php" class="btn btn-primary btn-lg">
-      <i class="bi bi-arrow-left-circle"></i> Regresar al inicio
-    </a>
-  </div>
 </div>
 
 <footer>© 2025 Sistema de Gestión Escolar</footer>

@@ -1,124 +1,204 @@
 <?php
+
 require_once __DIR__ . '/../../config/db_connection.php';
 require_once __DIR__ . '/../models/alumnoModel.php';
 
-$model = new AlumnoModel($connection);
+class AlumnoController {
 
-// ============================================
-// PETICIÓN AJAX: obtener grupos por carrera
-// ============================================
-if (isset($_GET['ajax_grupos'])) {
-    header('Content-Type: application/json');
-    $idCarrera = intval($_GET['idCarrera'] ?? 0);
-    $res = $model->obtenerGruposPorCarrera($idCarrera);
-    $data = [];
-    while ($g = $res->fetch_assoc()) {
-        $data[] = $g;
-    }
-    echo json_encode($data);
-    exit;
-}
+    private $connection;
+    private $model;
 
-// ============================================
-// VARIABLES DE MENSAJE
-// ============================================
-$mensaje = '';
-$tipo = '';
-
-// ============================================
-// INSERTAR NUEVO ALUMNO
-// ============================================
-if (isset($_POST['insertar'])) {
-    $idUsuario = $_POST['idUsuario'];
-    $idCarrera = $_POST['idCarrera'];
-
-    if ($model->agregarAlumno($idUsuario, $idCarrera)) {
-        $mensaje = "Alumno registrado correctamente.";
-        $tipo = "success";
-    } else {
-        $mensaje = "Error al registrar al alumno.";
-        $tipo = "danger";
+    public function __construct($connection) {
+        $this->connection = $connection;
+        $this->model = new AlumnoModel($connection);
     }
 
-    header("Location: ../views/alumnosView.php?msg=$mensaje&type=$tipo");
-    exit;
-}
+    // ============================================================
+    // MOSTRAR MATERIAS DEL ALUMNO (VISTA DEL ALUMNO)
+    // ============================================================
+    public function misMaterias() {
 
-// ============================================
-// ACTUALIZAR ALUMNO
-// ============================================
-if (isset($_POST['actualizar'])) {
-    $idAlumno = $_POST['idAlumno'];
-    $idCarrera = $_POST['idCarrera'];
+        if (session_status() === PHP_SESSION_NONE) session_start();
 
-    if ($model->editarAlumno($idAlumno, $idCarrera)) {
-        $mensaje = "Alumno actualizado correctamente.";
-        $tipo = "success";
-    } else {
-        $mensaje = "Error al actualizar al alumno.";
-        $tipo = "danger";
+        if (!isset($_SESSION['usuario'])) {
+            header("Location: /sistemaGestionEscolar/index.php?action=login");
+            exit;
+        }
+
+        $idUsuario = $_SESSION['usuario']['id']; 
+        $materias = $this->model->obtenerMateriasAlumno($idUsuario);
+
+        include __DIR__ . '/../views/misMateriasView.php';
     }
 
-    header("Location: ../views/alumnosView.php?msg=$mensaje&type=$tipo");
-    exit;
-}
+    // ============================================================
+    // PETICIÓN AJAX: obtener grupos por carrera
+    // ============================================================
+    public function ajaxGrupos() {
 
-// ============================================
-// ELIMINAR ALUMNO
-// ============================================
-if (isset($_GET['delete'])) {
-    $id = $_GET['delete'];
+        $idCarrera = intval($_GET['idCarrera'] ?? 0);
+        $res = $this->model->obtenerGruposPorCarrera($idCarrera);
 
-    if ($model->eliminarAlumno($id)) {
-        $mensaje = "Alumno eliminado correctamente.";
-        $tipo = "success";
-    } else {
-        $mensaje = "Error al eliminar el alumno.";
-        $tipo = "danger";
-    }
+        $data = [];
+        while ($g = $res->fetch_assoc()) {
+            $data[] = $g;
+        }
 
-    header("Location: ../views/alumnosView.php?msg=$mensaje&type=$tipo");
-    exit;
-}
-
-// ============================================
-// INSCRIBIR ALUMNO EN UN GRUPO
-// ============================================
-if (isset($_POST['inscribir'])) {
-    $idAlumno = intval($_POST['idAlumno']);
-    $idGrupo = intval($_POST['idGrupo']);
-    $fecha = date('Y-m-d');
-
-    // Validar si el alumno ya está inscrito
-    $stmt = $connection->prepare("SELECT COUNT(*) AS existe FROM inscripciones WHERE idAlumno = ?");
-    $stmt->bind_param("i", $idAlumno);
-    $stmt->execute();
-    $res = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if ($res['existe'] > 0) {
-        // Ya está inscrito en otro grupo
-        $mensaje = "El alumno ya está inscrito en un grupo.";
-        $tipo = "warning";
-        header("Location: ../views/alumnosView.php?msg=$mensaje&type=$tipo");
+        header('Content-Type: application/json');
+        echo json_encode($data);
         exit;
     }
 
-    // Insertar inscripción
-    $stmt = $connection->prepare("INSERT INTO inscripciones (idAlumno, idGrupo, fechaInscripcion) VALUES (?, ?, ?)");
-    $stmt->bind_param("iis", $idAlumno, $idGrupo, $fecha);
-    $ok = $stmt->execute();
-    $stmt->close();
+    // ============================================================
+    // REGISTRAR NUEVO ALUMNO
+    // ============================================================
+    public function insertar() {
 
-    if ($ok) {
-        $mensaje = "Alumno inscrito correctamente.";
-        $tipo = "success";
-    } else {
-        $mensaje = "Error al inscribir al alumno.";
-        $tipo = "danger";
+        $idUsuario = $_POST['idUsuario'] ?? null;
+        $idCarrera = $_POST['idCarrera'] ?? null;
+
+        if ($this->model->agregarAlumno($idUsuario, $idCarrera)) {
+            $msg = "Alumno registrado correctamente.";
+            $type = "success";
+        } else {
+            $msg = "Error al registrar al alumno.";
+            $type = "danger";
+        }
+
+        header("Location: " . BASE_URL . "app/views/alumnosView.php?msg=$msg&type=$type");
+exit;        exit;
     }
 
-    header("Location: ../views/alumnosView.php?msg=$mensaje&type=$tipo");
-    exit;
+    // ============================================================
+    // ACTUALIZAR ALUMNO
+    // ============================================================
+    public function actualizar() {
+
+        $idAlumno = $_POST['idAlumno'];
+        $idCarrera = $_POST['idCarrera'];
+
+        if ($this->model->editarAlumno($idAlumno, $idCarrera)) {
+            $msg = "Alumno actualizado correctamente.";
+            $type = "success";
+        } else {
+            $msg = "Error al actualizar al alumno.";
+            $type = "danger";
+        }
+
+        header("Location: " . BASE_URL . "app/views/alumnosView.php?msg=$msg&type=$type");
+exit;        exit;
+    }
+
+    // ============================================================
+    // ELIMINAR ALUMNO
+    // ============================================================
+    public function eliminar() {
+
+        $id = $_GET['delete'] ?? null;
+
+        if ($this->model->eliminarAlumno($id)) {
+            $msg = "Alumno eliminado correctamente.";
+            $type = "success";
+        } else {
+            $msg = "Error al eliminar el alumno.";
+            $type = "danger";
+        }
+
+        header("Location: " . BASE_URL . "app/views/alumnosView.php?msg=$msg&type=$type");
+exit;        exit;
+    }
+
+    // ============================================================
+    // INSCRIBIR ALUMNO A UN GRUPO
+    // ============================================================
+    public function inscribir() {
+
+        $idAlumno = intval($_POST['idAlumno']);
+        $idGrupo  = intval($_POST['idGrupo']);
+        $fecha    = date('Y-m-d');
+
+        // Validar inscripción previa
+        $stmt = $this->connection->prepare("SELECT COUNT(*) AS existe FROM inscripciones WHERE idAlumno = ?");
+        $stmt->bind_param("i", $idAlumno);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if ($res['existe'] > 0) {
+            $msg = "El alumno ya está inscrito en un grupo.";
+            $type = "warning";
+            header("Location: " . BASE_URL . "app/views/alumnosView.php?msg=$msg&type=$type");
+exit;            exit;
+        }
+
+        // Realizar inscripción
+        $stmt = $this->connection->prepare("
+            INSERT INTO inscripciones (idAlumno, idGrupo, fechaInscripcion)
+            VALUES (?, ?, ?)
+        ");
+        $stmt->bind_param("iis", $idAlumno, $idGrupo, $fecha);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        if ($ok) {
+            $msg = "Alumno inscrito correctamente.";
+            $type = "success";
+        } else {
+            $msg = "Error al inscribir al alumno.";
+            $type = "danger";
+        }
+
+        header("Location: " . BASE_URL . "app/views/alumnosView.php?msg=$msg&type=$type");
+exit;        exit;
+    }
+
+
+    public function misCalificaciones() {
+
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        if (!isset($_SESSION['usuario'])) {
+            header("Location: /sistemaGestionEscolar/index.php?action=login");
+            exit;
+        }
+
+        $idUsuario = $_SESSION['usuario']['id'];
+        $calificaciones = $this->model->obtenerCalificacionesAlumno($idUsuario);
+
+        include __DIR__ . '/../views/misCalificacionesView.php';
+    }
+
+    public function dashboardAlumno() {
+
+    if (session_status() === PHP_SESSION_NONE) session_start();
+
+    if (!isset($_SESSION['usuario'])) {
+        header("Location: /sistemaGestionEscolar/index.php?action=login");
+        exit;
+    }
+
+    require_once __DIR__ . '/../models/alumnoModel.php';
+    $model = new AlumnoModel($this->connection);
+
+    $idUsuario = $_SESSION['usuario']['id'];
+
+    // === Calificaciones por materia ===
+    $res = $model->obtenerCalificacionesDashboard($idUsuario);
+
+    $materias = [];
+    $calificaciones = [];
+
+    while ($row = $res->fetch_assoc()) {
+        $materias[] = $row['nombreMateria'];
+        $calificaciones[] = floatval($row['calificacion']);
+    }
+
+    // === Promedio general ===
+    $promedio = $model->obtenerPromedioDashboard($idUsuario);
+
+    include __DIR__ . '/../views/Dashboard/dashboard_alumno.php';
 }
-?>
+
+
+
+}

@@ -42,5 +42,14 @@ class MateriaModel {
     public function obtenerPeriodosActivos() {
         return $this->connection->query("SELECT * FROM periodosEscolares WHERE fechaFin > CURDATE() ORDER BY fechaInicio ASC");
     }
+
+    // ====================================================
+    // MÉTODO PARA EL DASHBOARD (REQUERIDO)
+    // ====================================================
+    public function contarMaterias() {
+        $sql = "SELECT COUNT(*) AS total FROM materias";
+        $result = $this->connection->query($sql);
+        return $result->fetch_assoc()['total'];
+    }
 }
 ?>

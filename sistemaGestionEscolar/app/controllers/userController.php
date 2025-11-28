@@ -4,18 +4,21 @@ require_once __DIR__ . '/../../config/config.php';
 
 class UserController {
     private $connection;
+    private $model;
 
     public function __construct($connection) {
         $this->connection = $connection;
+        $this->model = new UserModel($connection); // ← CORREGIDO
     }
 
     public function gestionarUsuarios() {
+
         $mensaje = '';
-        $tipo = '';
+        $tipo    = '';
 
         // --- INSERTAR ---
         if (isset($_POST['insertar'])) {
-            insertarUsuario(
+            $this->model->insertarUsuario(
                 $this->connection,
                 $_POST['nombres'],
                 $_POST['apePaterno'],
@@ -28,13 +31,14 @@ class UserController {
                 $_POST['contrasena'],
                 $_POST['idCarrera'] ?? null
             );
+
             $mensaje = 'Usuario registrado correctamente.';
             $tipo = 'success';
         }
 
         // --- ACTUALIZAR ---
         if (isset($_POST['actualizar'])) {
-            actualizarUsuario(
+            $this->model->actualizarUsuario(
                 $this->connection,
                 $_POST['idUsuario'],
                 $_POST['nombres'],
@@ -48,33 +52,29 @@ class UserController {
                 $_POST['contrasena'],
                 $_POST['idCarrera'] ?? null
             );
+
             $mensaje = 'Usuario actualizado correctamente.';
             $tipo = 'success';
         }
 
-
-        // ELIMINAR USUARIO
+        // --- ELIMINAR ---
         if (isset($_GET['delete'])) {
             $id = intval($_GET['delete']);
-            $ok = eliminarUsuario($this->connection, $id);
+            $ok = $this->model->eliminarUsuario($this->connection, $id);
 
             if ($ok) {
                 $mensaje = 'Usuario eliminado correctamente.';
                 $tipo = 'success';
             } else {
-                $mensaje = 'No se pudo eliminar el usuario (revisa dependencias o FK).';
+                $mensaje = 'No se pudo eliminar el usuario.';
                 $tipo = 'danger';
             }
         }
 
+        $usuarios = $this->model->obtenerUsuarios();
 
-        // --- FILTROS ---
-        $rolFiltro = $_GET['rol'] ?? '';
-        $buscarNombre = $_GET['buscar'] ?? '';
-
-        $usuarios = obtenerUsuarios($this->connection, $rolFiltro, $buscarNombre);
         $connection = $this->connection;
 
-        include __DIR__ . '/../views/GestionUsuarios/gestion_usuarios.php';
+        require __DIR__ . '/../views/GestionUsuarios/gestion_usuarios.php';
     }
 }

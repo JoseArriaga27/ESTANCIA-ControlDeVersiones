@@ -1,41 +1,119 @@
 <?php
 require_once __DIR__ . '/../../../config/config.php';
+
+if (!isset($_SESSION)) session_start();
+
+// 🔒 PERMISOS SOLO PARA ADMINISTRADOR Y ADMINISTRATIVO
+if (!in_array($_SESSION['usuario']['rol'], ['Administrador','Administrativo'])) {
+    header("Location: ../../../index.php?action=login");
+    exit;
+}
+
+$nombreUsuario = $_SESSION['usuario']['nombre'];
+$rolUsuario    = $_SESSION['usuario']['rol'];
+/* ============================================================
+   COLORES SEGÚN EL ROL
+   Administrador → Azul
+   Administrativo → Morado
+============================================================ */
+
+$estilos = [];
+
+if ($rolUsuario === 'Administrador') {
+    // AZUL INSTITUCIONAL
+    $estilos['principal']        = "#0A2A43";
+    $estilos['principal_hover']  = "#071D30";
+}
+else {
+    // MORADO ADMINISTRATIVO
+    $estilos['principal']        = "#320B86";
+    $estilos['principal_hover']  = "#250769";
+}
+
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Gestión de Usuarios</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { background-color: #f8f9fa; }
-    .navbar { background-color: #007bff; }
-    footer { background-color: #007bff; color: white; padding: 10px 0; text-align: center; }
-    .card-header { background-color: #5a5a5a; color: white; }
-    .perfil-icon { color: white; text-decoration: none; font-size: 0.9rem; }
-    .perfil-icon:hover { text-decoration: underline; }
-  </style>
+<meta charset="UTF-8">
+<title>Gestión de Usuarios</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+/* ==============================
+   COLORES INSTITUCIONALES MORADO ADMINISTRATIVO
+================================= */
+
+:root {
+    --color-principal: <?= $estilos['principal'] ?>;
+    --color-principal-hover: <?= $estilos['principal_hover'] ?>;
+    --fondo: #f4f4f9;
+}
+
+
+body { background: var(--fondo); }
+
+/* NAVBAR */
+.navbar {
+    background: var(--color-principal) !important;
+}
+
+/* FOOTER */
+footer {
+    background: var(--color-principal);
+    color:white;
+    padding:10px 0;
+    text-align:center;
+    font-weight:500;
+    margin-top:40px;
+}
+
+/* CARD HEADERS */
+.card-header {
+    background: var(--color-principal);
+    color:white;
+    font-weight:600;
+}
+
+/* TÍTULO */
+.titulo-pagina {
+    color: var(--color-principal);
+    font-weight:700;
+}
+
+/* BOTÓN REGRESAR */
+.btn-regresar {
+    background: var(--color-principal);
+    color:white;
+    border-radius:6px;
+}
+.btn-regresar:hover {
+    background: var(--color-principal-hover);
+    color:white;
+}
+
+/* BOTONES editar/eliminar */
+.btn-warning { background:#E3A008; border:none; }
+.btn-danger { background:#B91C1C; border:none; }
+
+</style>
 </head>
+
 <body>
 
-<!-- Barra superior -->
-<?php
-session_start();
-$nombreUsuario = $_SESSION['usuario']['nombre'] ?? 'Usuario';
-$rolUsuario = $_SESSION['usuario']['rol'] ?? 'Sin rol';
-?>
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark px-3">
   <div class="container-fluid d-flex justify-content-between align-items-center">
     <span class="navbar-brand h5 mb-0 text-white">Sistema de Gestión Escolar</span>
 
-    <div class="d-flex align-items-center">
-      <div class="text-white fw-semibold me-3">
-        <i class="bi bi-person-circle"></i>
-        <?= htmlspecialchars($nombreUsuario) ?>
-        <span class="text-white-50">(<?= htmlspecialchars($rolUsuario) ?>)</span>
-      </div>
-      <a href="<?= BASE_URL ?>index.php?action=logout" class="btn btn-outline-light btn-sm">
+    <div class="text-white fw-semibold">
+      <i class="bi bi-person-circle"></i>
+      <?= $nombreUsuario ?>
+      <span class="text-white-50">(<?= $rolUsuario ?>)</span>
+
+      <a href="<?= BASE_URL ?>index.php?action=logout" class="btn btn-outline-light btn-sm ms-3">
         <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
       </a>
     </div>
@@ -44,7 +122,18 @@ $rolUsuario = $_SESSION['usuario']['rol'] ?? 'Sin rol';
 
 <div class="container mt-4 mb-5">
 
-  <h3 class="text-center mb-4 fw-semibold">Gestión de Usuarios</h3>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="titulo-pagina m-0">
+        <i class="bi bi-people-fill me-2"></i> Gestión de Usuarios
+    </h3>
+
+    <a href="<?= BASE_URL ?>index.php?action=dashboard<?= $rolUsuario === 'Administrador' ? '' : '_administrativo' ?>" 
+   class="btn btn-regresar px-4">
+    <i class="bi bi-arrow-left"></i> Regresar
+</a>
+
+  </div>
+
 
   <?php
   $modo = isset($_GET['edit']) ? 'editar' : 'insertar';
@@ -146,7 +235,7 @@ $rolUsuario = $_SESSION['usuario']['rol'] ?? 'Sin rol';
         <div class="col-12 text-end">
           <?php if ($modo == 'editar'): ?>
             <button type="submit" name="actualizar" class="btn btn-warning px-4">Actualizar</button>
-            <a href="?" class="btn btn-secondary px-4">Cancelar</a>
+            <a href="<?= BASE_URL ?>index.php?action=usuarios" class="btn btn-secondary px-4">Cancelar</a>
           <?php else: ?>
             <button type="submit" name="insertar" class="btn btn-success px-4">Guardar</button>
           <?php endif; ?>
@@ -215,11 +304,6 @@ $rolUsuario = $_SESSION['usuario']['rol'] ?? 'Sin rol';
 </div>
 <?php endif; ?>
 
-<div class="text-center my-4">
-  <a href="/../sistemaGestionEscolar/app/views/Dashboard/dashboard_admin.php" class="btn btn-primary btn-lg">
-    <i class="bi bi-arrow-left-circle"></i> Regresar al inicio
-  </a>
-</div>
 
 <footer>© 2025 Sistema de Gestión Escolar</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

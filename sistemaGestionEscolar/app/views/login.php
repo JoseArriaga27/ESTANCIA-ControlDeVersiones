@@ -11,15 +11,17 @@
 <div class="card shadow p-4 rounded-4" style="width: 350px;">
     <h4 class="text-center mb-4">Iniciar sesión</h4>
 
-    <form method="POST" action="/sistemaGestionEscolar/index.php?action=login">
+    <!-- FORMULARIO 100% CORRECTO -->
+    <form method="POST" action="<?= BASE_URL ?>index.php?action=login">
 
         <div class="mb-3">
             <label class="form-label fw-semibold">Correo electrónico</label>
             <input type="email" name="correo" class="form-control" required placeholder="ejemplo@escuela.edu.mx">
         </div>
+
         <div class="mb-3">
             <label class="form-label fw-semibold">Contraseña</label>
-            <input type="password" name="password" class="form-control" required >
+            <input type="password" name="password" class="form-control" required>
         </div>
 
         <?php if (!empty($error)): ?>
@@ -29,6 +31,7 @@
         <div class="d-grid">
             <button type="submit" class="btn btn-primary fw-semibold">Iniciar sesión</button>
         </div>
+
     </form>
 
     <div class="text-center mt-3">
