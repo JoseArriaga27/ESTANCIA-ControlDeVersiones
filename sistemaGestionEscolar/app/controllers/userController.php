@@ -25,7 +25,8 @@ class UserController {
                 $_POST['matricula'],
                 $_POST['correo'],
                 $_POST['rol'],
-                $_POST['contrasena']
+                $_POST['contrasena'],
+                $_POST['idCarrera'] ?? null
             );
             $mensaje = 'Usuario registrado correctamente.';
             $tipo = 'success';
@@ -44,11 +45,13 @@ class UserController {
                 $_POST['matricula'],
                 $_POST['correo'],
                 $_POST['rol'],
-                $_POST['contrasena']
+                $_POST['contrasena'],
+                $_POST['idCarrera'] ?? null
             );
             $mensaje = 'Usuario actualizado correctamente.';
             $tipo = 'success';
         }
+
 
         // ELIMINAR USUARIO
         if (isset($_GET['delete'])) {

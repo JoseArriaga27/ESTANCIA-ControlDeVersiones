@@ -179,3 +179,10 @@ INSERT INTO usuarios
 (3, 'DOC002', 'Erick', 'Méndez', NULL, 'Masculino', '1990-01-01', 'erick.mendez@upemor.edu.mx', 'erick01', 'Docente', 1),
 (4, 'ALU001', 'Laura', 'Hernández', NULL, 'Femenino', '2000-01-01', 'laura.hernandez@upemor.edu.mx', 'laura01', 'Alumno', 1);
 
+INSERT INTO periodosescolares (idPeriodo, nombrePeriodo, fechaInicio, fechaFin) VALUES
+(1, 'Septiembre-Diciembre', '2025-09-04', '2025-12-30'),
+(2, 'Enero-marzo', '2025-01-14', '2025-03-31'),
+(3, 'Enero-Marzo', '2026-01-14', '2026-04-28');
+
+INSERT INTO materias (idMateria, nombreMateria, claveMateria, horasSemana, idPeriodo) VALUES
+(1, 'Estancia II', 'SPDIC1', 85, 1);
