@@ -1,43 +1,77 @@
 <?php
+require_once __DIR__ . '/../models/userModel.php';
+require_once __DIR__ . '/../../config/config.php';
 
-    // Incluir el modelo y la base de datos
-    include_once "app/models/userModel.php";
-    include_once "config/db_connection.php";
+class UserController {
+    private $connection;
 
-    // Crear la clase del controlador
-    class UserController {
-
-        private $model;
-
-        // Constructor para el objeto del modelo
-        public function __construct($connection){
-            $this -> model = new UserModel($connection);
-        }
-
-        public function insertarUsuario(){ 
-
-            if(isset($_POST['enviar'])){
-                $nombre = trim($_POST['nombre']);
-                $edad = (int) $_POST['edad'];
-                $fecha = $_POST['fecha'];
-                // La contraseña se hashea correctamente aquí
-                $pass = password_hash($_POST['pass'], PASSWORD_BCRYPT);
-                
-                if(!empty($nombre) && !empty($edad) && !empty($fecha) && !empty($pass)){
-                    
-                    // Llamada al método del modelo
-                    $insert = $this -> model -> insertarUsuario($nombre, $edad, $fecha, $pass);
-
-                    if($insert){
-                        echo "<br>Registro exitoso";
-                    }else{
-                        echo "<br>Error en el registro";
-                    }
-                }
-            }
-
-            // Cargar el formulario a la vista
-            include_once "app/views/form_insert.php";
-        }
+    public function __construct($connection) {
+        $this->connection = $connection;
     }
-    // ¡Aquí debería ir el cierre de la etiqueta PHP si no hay más código!
+
+    public function gestionarUsuarios() {
+        $mensaje = '';
+        $tipo = '';
+
+        // --- INSERTAR ---
+        if (isset($_POST['insertar'])) {
+            insertarUsuario(
+                $this->connection,
+                $_POST['nombres'],
+                $_POST['apePaterno'],
+                $_POST['apeMaterno'],
+                $_POST['sexo'],
+                $_POST['fechaNacimiento'],
+                $_POST['matricula'],
+                $_POST['correo'],
+                $_POST['rol'],
+                $_POST['contrasena']
+            );
+            $mensaje = 'Usuario registrado correctamente.';
+            $tipo = 'success';
+        }
+
+        // --- ACTUALIZAR ---
+        if (isset($_POST['actualizar'])) {
+            actualizarUsuario(
+                $this->connection,
+                $_POST['idUsuario'],
+                $_POST['nombres'],
+                $_POST['apePaterno'],
+                $_POST['apeMaterno'],
+                $_POST['sexo'],
+                $_POST['fechaNacimiento'],
+                $_POST['matricula'],
+                $_POST['correo'],
+                $_POST['rol'],
+                $_POST['contrasena']
+            );
+            $mensaje = 'Usuario actualizado correctamente.';
+            $tipo = 'success';
+        }
+
+        // ELIMINAR USUARIO
+        if (isset($_GET['delete'])) {
+            $id = intval($_GET['delete']);
+            $ok = eliminarUsuario($this->connection, $id);
+
+            if ($ok) {
+                $mensaje = 'Usuario eliminado correctamente.';
+                $tipo = 'success';
+            } else {
+                $mensaje = 'No se pudo eliminar el usuario (revisa dependencias o FK).';
+                $tipo = 'danger';
+            }
+        }
+
+
+        // --- FILTROS ---
+        $rolFiltro = $_GET['rol'] ?? '';
+        $buscarNombre = $_GET['buscar'] ?? '';
+
+        $usuarios = obtenerUsuarios($this->connection, $rolFiltro, $buscarNombre);
+        $connection = $this->connection;
+
+        include __DIR__ . '/../views/GestionUsuarios/gestion_usuarios.php';
+    }
+}

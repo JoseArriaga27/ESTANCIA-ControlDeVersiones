@@ -1,28 +1,66 @@
 <?php
-    //Siempre se usa para el modelo
-    class UserModel{
+// ====================================
+// MODELO: Operaciones SQL de Usuarios
+// ====================================
 
-        private $connection;
+function obtenerUsuarios($connection) {
+    $query = "SELECT * FROM usuarios ORDER BY idUsuario DESC";
+    return $connection->query($query);
+}
 
-        //Crear el constructor de la clase
-        public function __construct($connection){
+function insertarUsuario($connection, $nombres, $apePaterno, $apeMaterno, $sexo, $fechaNacimiento, $matricula, $correo, $rol, $contrasena) {
+    $hash = password_hash($contrasena, PASSWORD_DEFAULT);
+    $stmt = $connection->prepare("
+        INSERT INTO usuarios (nombres, apePaterno, apeMaterno, sexo, fechaNacimiento, matricula, correo, rol, contrasena, activo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+    ");
+    $stmt->bind_param("sssssssss", $nombres, $apePaterno, $apeMaterno, $sexo, $fechaNacimiento, $matricula, $correo, $rol, $hash);
+    return $stmt->execute();
+}
 
-            $this -> connection = $connection;
-
-        }
-
-        //Crear método para insertar el usuario
-        public function insertarUsuario($nombre, $edad, $fecha, $pass){
-
-            //Toda la lógicas para las inserciones en la base de datos
-            $sql_statement = "insert into lista (nombre, edad, fecha, pass) values (?,?,?,?)";
-
-            //Preparar el statement
-            $statement = $this -> connection -> prepare($sql_statement);
-            
-            // CORRECCIÓN: Cambiado 'binf_param' por 'bind_param'
-            $statement -> bind_param("siss", $nombre, $edad, $fecha, $pass);
-
-            return $statement -> execute();
-        }
+function actualizarUsuario($connection, $idUsuario, $nombres, $apePaterno, $apeMaterno, $sexo, $fechaNacimiento, $matricula, $correo, $rol, $contrasena = null) {
+    if (!empty($contrasena)) {
+        $hash = password_hash($contrasena, PASSWORD_DEFAULT);
+        $stmt = $connection->prepare("
+            UPDATE usuarios 
+            SET nombres=?, apePaterno=?, apeMaterno=?, sexo=?, fechaNacimiento=?, matricula=?, correo=?, rol=?, contrasena=? 
+            WHERE idUsuario=?
+        ");
+        $stmt->bind_param("sssssssssi", $nombres, $apePaterno, $apeMaterno, $sexo, $fechaNacimiento, $matricula, $correo, $rol, $hash, $idUsuario);
+    } else {
+        $stmt = $connection->prepare("
+            UPDATE usuarios 
+            SET nombres=?, apePaterno=?, apeMaterno=?, sexo=?, fechaNacimiento=?, matricula=?, correo=?, rol=? 
+            WHERE idUsuario=?
+        ");
+        $stmt->bind_param("ssssssssi", $nombres, $apePaterno, $apeMaterno, $sexo, $fechaNacimiento, $matricula, $correo, $rol, $idUsuario);
     }
+    return $stmt->execute();
+}
+
+function eliminarUsuario($connection, $idUsuario) {
+    $idUsuario = intval($idUsuario);
+
+    if ($idUsuario <= 0) {
+        echo "<script>console.error('ID no válido para eliminar');</script>";
+        return false;
+    }
+
+    $stmt = $connection->prepare("DELETE FROM usuarios WHERE idUsuario = ?");
+    if (!$stmt) {
+        echo "<script>console.error('Error prepare: " . $connection->error . "');</script>";
+        return false;
+    }
+
+    $stmt->bind_param("i", $idUsuario);
+    $stmt->execute();
+
+    if ($stmt->error) {
+        echo "<script>console.error('Error execute: " . $stmt->error . "');</script>";
+    }
+
+    $filas = $stmt->affected_rows;
+    $stmt->close();
+
+    return $filas > 0;
+}
